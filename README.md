@@ -10,7 +10,7 @@ Projek ini adalah kalkulator harga sticker label A3 yang dibangunkan menggunakan
 - Pengiraan automatik harga per sheet dan harga per sticker
 - Format mesej untuk pelanggan melalui WhatsApp
 
-## 📦 Cara Guna
+## 📦 Cara Menggunakan Sticker Kalkulator
 1. Masukkan saiz sticker dan kuantiti.
 2. Pilih jenis material, laminate, dan cutting.
 3. Klik butang **Kira Harga**.
