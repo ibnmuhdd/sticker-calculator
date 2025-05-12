@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sticker Label Kalkulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      max-width: 480px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f0f8ff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 1.6em;
+      margin-bottom: 15px;
+      color: #00695c;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    input[type="number"],
+    textarea {
+      width: 100%;
+      box-sizing: border-box; /* ✅ Tambah baris ini */
+    }
+
+    #quantity {
+      margin-bottom: 15px; /* ✅ Tambah spacing bawah */
+    }
+
+    .unit-selectors {
+      display: flex;
+      gap: 8px;
+    }
+
+    .unit-selectors input {
+      flex: 2;
+    }
+
+    .unit-selectors select {
+      flex: 1;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #00695c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #004d40;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1em;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: #00796b;
+    }
+
+    textarea {
+      margin-top: 15px;
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-family: 'Poppins', sans-serif;
+      resize: none;
+    }
+
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 0.9em;
+      color: #888;
+    }
+
+    footer a {
+      color: #00796b;
+      text-decoration: none;
+    }
+
+    @media (max-width: 500px) {
+      body {
+        padding: 15px;
+      }
+    }
+  </style>
+
+</head>
+<body>
+  <h2>Sticker Label Kalkulator</h2>
+
+  <div class="card">
+    <label for="material">Jenis Material :</label>
+    <select id="material">
+      <option value="mirrorkote">Mirrorkote</option>
+	  <option value="whitepp">White PP</option>
+      <option value="transparent">Transparent</option>
+      <option value="pvc">PVC</option>
+    </select>
+
+    <label for="laminate">Finishing (Laminate) :</label>
+    <select id="laminate">
+      <option value="none">No Laminate</option>
+      <option value="matte">Matte (+RM0.50/sheet)</option>
+      <option value="glossy">Glossy (+RM0.50/sheet)</option>
+    </select>
+
+    <label for="cutting">Jenis Cutting :</label>
+    <select id="cutting">
+      <option value="kissCut">Kiss Cut (Percuma)</option>
+      <option value="dieCut">Die Cut (+RM1/sheet)</option>
+    </select>
+
+    <label for="width">Lebar (Width) :</label>
+    <div class="unit-selectors">
+      <input type="number" id="width" step="0.1" placeholder="Contoh: 5">
+      <select id="widthUnit">
+        <option value="cm">cm</option>
+        <option value="mm">mm</option>
+        <option value="inch">inch</option>
+      </select>
+    </div>
+
+    <label for="height">Tinggi (Height) :</label>
+    <div class="unit-selectors">
+      <input type="number" id="height" step="0.1" placeholder="Contoh: 5">
+      <select id="heightUnit">
+        <option value="cm">cm</option>
+        <option value="mm">mm</option>
+        <option value="inch">inch</option>
+      </select>
+    </div>
+
+    <label for="quantity">Kuantiti (pcs):</label>
+    <input type="number" id="quantity" placeholder="Contoh: 500">
+
+    <button onclick="calculateStickerCost()">Kira Harga</button>
+
+    <div class="result" id="result"></div>
+    <textarea id="whatsappText" readonly placeholder="Maklumat untuk WhatsApp pelanggan akan muncul di sini..."></textarea>
+
+    <div id="stickerPreview"></div>
+  </div>
+
+  <footer>
+    Dihasilkan Oleh <a href="https://hnrekagrafik.com" target="_blank">HN Reka Grafik</a> | © 2025 Hak Cipta Dipelihara
+  </footer>
+
+<script>
+  const maxSheetWidth = 26.924; // 10.6 inch dalam cm
+  const maxSheetHeight = 42.672; // 16.8 inch dalam cm
+
+  const pricingSettings = {
+    materialPrices: {
+      mirrorkote: 7.00,
+      whitepp: 8.0,
+      transparent: 15.00,
+      pvc: 15.00
+    },
+    laminateCharges: {
+      none: 0,
+      matte: 0.5,
+      glossy: 0.5
+    },
+    cuttingCharges: {
+      kissCut: 0,
+      dieCut: 1.0
+    },
+    sheetDiscountTiers: [
+      { minSheets: 101, price: 4.50 },
+      { minSheets: 51, price: 5.00 },
+      { minSheets: 21, price: 6.50 }
+    ]
+  };
+
+  function getBasePrice(material) {
+    return pricingSettings.materialPrices[material] || 10.0;
+  }
+
+  function getDiscountedPricePerSheet(material, laminate, cutting, sheetCount) {
+    const laminateCharge = pricingSettings.laminateCharges[laminate] || 0;
+    const cuttingCharge = pricingSettings.cuttingCharges[cutting] || 0;
+
+    for (const tier of pricingSettings.sheetDiscountTiers) {
+      if (sheetCount >= tier.minSheets) {
+        return tier.price + laminateCharge + cuttingCharge;
+      }
+    }
+
+    return getBasePrice(material) + laminateCharge + cuttingCharge;
+  }
+
+  function convertToCm(value, unit) {
+    if (unit === "mm") return value / 10;
+    if (unit === "inch") return value * 2.54;
+    return value;
+  }
+
+  function formatLaminateText(value) {
+    if (value === 'none') return 'Tiada';
+    if (value === 'matte') return 'Matte';
+    if (value === 'glossy') return 'Glossy';
+    return value;
+  }
+
+  function updateLaminateOptions() {
+    const material = document.getElementById("material").value;
+    const laminate = document.getElementById("laminate");
+    if (material === "transparent") {
+      laminate.value = "none";
+      laminate.disabled = true;
+    } else {
+      laminate.disabled = false;
+    }
+  }
+
+  document.getElementById("material").addEventListener("change", () => {
+    updateLaminateOptions();
+    calculateStickerCost();
+  });
+
+  document.getElementById("laminate").addEventListener("change", () => {
+    calculateStickerCost();
+  });
+
+  document.getElementById("cutting").addEventListener("change", () => {
+    calculateStickerCost();
+  });
+
+  // Tambahan event listener untuk input yang ubah harga
+  document.getElementById("quantity").addEventListener("input", () => {
+    calculateStickerCost();
+  });
+
+  document.getElementById("width").addEventListener("input", () => {
+    calculateStickerCost();
+  });
+
+  document.getElementById("height").addEventListener("input", () => {
+    calculateStickerCost();
+  });
+
+  document.getElementById("widthUnit").addEventListener("change", () => {
+    calculateStickerCost();
+  });
+
+  document.getElementById("heightUnit").addEventListener("change", () => {
+    calculateStickerCost();
+  });
+
+  let isSyncing = false;
+  document.getElementById("widthUnit").addEventListener("change", function () {
+    if (isSyncing) return;
+    isSyncing = true;
+    document.getElementById("heightUnit").value = this.value;
+    isSyncing = false;
+  });
+
+  document.getElementById("heightUnit").addEventListener("change", function () {
+    if (isSyncing) return;
+    isSyncing = true;
+    document.getElementById("widthUnit").value = this.value;
+    isSyncing = false;
+  });
+
+  function calculateStickerCost() {
+    const rawWidth = parseFloat(document.getElementById("width").value);
+    const rawHeight = parseFloat(document.getElementById("height").value);
+    const widthUnit = document.getElementById("widthUnit").value;
+    const heightUnit = document.getElementById("heightUnit").value;
+    const quantity = parseInt(document.getElementById("quantity").value);
+    const material = document.getElementById("material").value;
+    const laminate = document.getElementById("laminate").value;
+    const cutting = document.getElementById("cutting").value;
+
+    const resultBox = document.getElementById("whatsappText");
+
+    if (
+      isNaN(rawWidth) || rawWidth <= 0 ||
+      isNaN(rawHeight) || rawHeight <= 0 ||
+      isNaN(quantity) || quantity <= 0
+    ) {
+      resultBox.value = "Sila masukkan saiz dan kuantiti yang betul";
+      return;
+    }
+
+    const width = convertToCm(rawWidth, widthUnit);
+    const height = convertToCm(rawHeight, heightUnit);
+
+    if (width > maxSheetWidth || height > maxSheetHeight) {
+      resultBox.value = "Saiz sticker melebihi had maksimum cetakan. Sila pastikan saiz sticker anda muat dalam saiz kertas A3";
+      return;
+    }
+
+// Kira orientasi asal
+let columns = Math.floor(maxSheetWidth / width);
+let rows = Math.floor(maxSheetHeight / height);
+let stickersPerSheet = columns * rows;
+
+// Kira orientasi berpusing 90°
+let altColumns = Math.floor(maxSheetWidth / height);
+let altRows = Math.floor(maxSheetHeight / width);
+let altStickersPerSheet = altColumns * altRows;
+
+// Pilih orientasi paling optimum
+if (altStickersPerSheet > stickersPerSheet) {
+  columns = altColumns;
+  rows = altRows;
+  stickersPerSheet = altStickersPerSheet;
+}
+
+    if (stickersPerSheet < 1) {
+      resultBox.value = "Saiz sticker terlalu besar sehingga tak muat satu pun atas satu sheet.";
+      return;
+    }
+
+    const sheetCount = Math.ceil(quantity / stickersPerSheet);
+    const basePricePerSheet = getDiscountedPricePerSheet(material, laminate, cutting, sheetCount);
+
+    const totalCost = basePricePerSheet * sheetCount;
+    const pricePerSheet = basePricePerSheet;
+    const costPerSticker = totalCost / quantity;
+
+	const unitSymbol = widthUnit; // sebab widthUnit dan heightUnit sentiasa sama
+
+    const textForWhatsapp = `
+Maklumat Tempahan Sticker:
+📐 Saiz: ${rawWidth.toFixed(1)} x ${rawHeight.toFixed(1)} ${unitSymbol}
+📦 Kuantiti: ${quantity} pcs
+📄 Material: ${material.charAt(0).toUpperCase() + material.slice(1)}
+✨ Finishing: ${formatLaminateText(laminate)}
+✂ Cutting: ${cutting === 'dieCut' ? 'Die Cut' : 'Kiss Cut'}
+
+✅ Bilangan sticker per sheet: ${stickersPerSheet} (${columns} x ${rows} )
+📄 A3 Sheet diperlukan: ${sheetCount}
+💵 Harga per sheet (A3): RM ${pricePerSheet.toFixed(2)}
+💰 Jumlah keseluruhan: RM ${totalCost.toFixed(2)}
+💸 Harga per pcs: RM ${costPerSticker.toFixed(2)}`;
+
+
+    resultBox.value = textForWhatsapp.trim();
+
+  }
+
+  document.getElementById("whatsappText").addEventListener("click", function () {
+    this.select();
+  });
+</script>
+
+
+
+
+
+</body>
+</html>
