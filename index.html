@@ -444,10 +444,18 @@ Maklumat Tempahan Sticker:
   });
 
 function showPreviewGrid() {
+  const quantity = parseInt(document.getElementById("quantity").value);
   const modal = document.getElementById("previewModal");
-  modal.style.display = "block";
-
   const gridContainer = document.getElementById("gridContainer");
+
+  if (isNaN(quantity) || quantity <= 0) {
+    gridContainer.innerHTML = "<p style='color:red; text-align: center; padding: 10px;'>Sila isi kuantiti dahulu sebelum melihat preview grid.</p>";
+
+    modal.style.display = "block";
+    return;
+  }
+
+  modal.style.display = "block";
 
   const rawWidth = parseFloat(document.getElementById("width").value);
   const rawHeight = parseFloat(document.getElementById("height").value);
@@ -461,19 +469,17 @@ function showPreviewGrid() {
 
   let columns = Math.floor(maxSheetWidth / width);
   let rows = Math.floor(maxSheetHeight / height);
-  let stickersPerSheet = columns * rows;
 
   let altColumns = Math.floor(maxSheetWidth / height);
   let altRows = Math.floor(maxSheetHeight / width);
-  let altStickersPerSheet = altColumns * altRows;
 
-  if (altStickersPerSheet > stickersPerSheet) {
+  if ((altColumns * altRows) > (columns * rows)) {
     columns = altColumns;
     rows = altRows;
   }
 
   if (columns < 1 || rows < 1) {
-    gridContainer.innerHTML = "<p>Saiz sticker terlalu besar untuk A3.</p>";
+    gridContainer.innerHTML = "<p style='color:red;'>Saiz sticker terlalu besar untuk A3.</p>";
     return;
   }
 
@@ -485,18 +491,31 @@ function showPreviewGrid() {
     div.className = "grid-item";
     gridContainer.appendChild(div);
   }
+  
+function closePreviewGrid() {
+  document.getElementById("previewModal").style.display = "none";
 }
 
-  function closePreviewGrid() {
-    document.getElementById("previewModal").style.display = "none";
+window.onclick = function(event) {
+  const modal = document.getElementById("previewModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
   }
+};
+  
+}
 
-  window.onclick = function(event) {
-    const modal = document.getElementById("previewModal");
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
+
+function closePreviewGrid() {
+  document.getElementById("previewModal").style.display = "none";
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById("previewModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+};
 </script>
 
 <footer>
