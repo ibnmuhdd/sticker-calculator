@@ -19,7 +19,7 @@ Projek ini adalah kalkulator harga sticker label A3 yang dibangunkan menggunakan
 ## 🌐 Live Demo
 Boleh akses melalui GitHub Pages setelah diaktifkan:
 ```
-https://<username>.github.io/sticker-label-calculator/
+https://ibnmuhdd.github.io/sticker-label-calculator/
 ```
 
 ---
