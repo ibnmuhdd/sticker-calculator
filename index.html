@@ -184,17 +184,16 @@
   <div class="card">
     <label for="material">Jenis Material :</label>
     <select id="material">
-      <option value="mirrorkote">Mirrorkote</option>
-	  <option value="whitepp">White PP</option>
-      <option value="transparent">Transparent</option>
-      <option value="pvc">PVC</option>
+      <option value="mirrorkote">Mirrorkote (MCC)</option>
+	  <option value="whitepp">OPP White (OPP)</option>
+      <option value="transparent">Transparent (TPP)</option>
     </select>
 
     <label for="laminate">Finishing (Laminate) :</label>
     <select id="laminate">
       <option value="none">No Laminate</option>
-      <option value="matte">Matte (+RM0.50/sheet)</option>
-      <option value="glossy">Glossy (+RM0.50/sheet)</option>
+      <option value="matte">Matte (+RM3.00/sheet)</option>
+      <option value="glossy">Glossy (+RM3.00/sheet)</option>
     </select>
 
     <label for="cutting">Jenis Cutting :</label>
@@ -247,45 +246,68 @@
   const maxSheetWidth = 26.924; // 10.6 inch dalam cm
   const maxSheetHeight = 42.672; // 16.8 inch dalam cm
 
-  const pricingSettings = {
-    materialPrices: {
-      mirrorkote: 7.00,
-      whitepp: 8.0,
-      transparent: 15.00,
-      pvc: 15.00
-    },
-    laminateCharges: {
-      none: 0,
-      matte: 0.5,
-      glossy: 0.5
-    },
-    cuttingCharges: {
-      kissCut: 0,
-      dieCut: 1.0
-    },
-    sheetDiscountTiers: [
-      { minSheets: 101, price: 4.50 },
-      { minSheets: 51, price: 5.00 },
-      { minSheets: 21, price: 6.50 }
+const pricingSettings = {
+  materialPricingTiers: {
+    mirrorkote: [
+      { minSheets: 200, price: 4.40 },
+      { minSheets: 100, price: 4.50 },
+      { minSheets: 50, price: 4.80 },
+      { minSheets: 21, price: 5.60 },
+      { minSheets: 11, price: 6.50 },
+      { minSheets: 6, price: 6.80 },
+      { minSheets: 0, price: 8.00 }
+    ],
+    oppwhite: [
+      { minSheets: 200, price: 5.90 },
+      { minSheets: 100, price: 6.00 },
+      { minSheets: 50, price: 6.40 },
+      { minSheets: 21, price: 6.50 },
+      { minSheets: 11, price: 7.20 },
+      { minSheets: 6, price: 8.80 },
+      { minSheets: 0, price: 11.00 }
+    ],
+    transparent: [
+      { minSheets: 200, price: 4.40 },
+      { minSheets: 100, price: 4.50 },
+      { minSheets: 50, price: 4.80 },
+      { minSheets: 21, price: 5.60 },
+      { minSheets: 11, price: 6.50 },
+      { minSheets: 6, price: 6.80 },
+      { minSheets: 0, price: 8.00 }
     ]
-  };
+  },
+  laminateCharges: {
+    none: 0,
+    matte: 3.0,
+    glossy: 3.0
+  },
+  cuttingCharges: {
+    kissCut: 0,
+    dieCut: 1.0
+  }
+};
 
   function getBasePrice(material) {
     return pricingSettings.materialPrices[material] || 10.0;
   }
 
   function getDiscountedPricePerSheet(material, laminate, cutting, sheetCount) {
-    const laminateCharge = pricingSettings.laminateCharges[laminate] || 0;
-    const cuttingCharge = pricingSettings.cuttingCharges[cutting] || 0;
+  const laminateCharge = pricingSettings.laminateCharges[laminate] || 0;
+  const cuttingCharge = pricingSettings.cuttingCharges[cutting] || 0;
 
-    for (const tier of pricingSettings.sheetDiscountTiers) {
+  if (pricingSettings.materialPricingTiers && pricingSettings.materialPricingTiers[material]) {
+    const tiers = pricingSettings.materialPricingTiers[material];
+    for (const tier of tiers) {
       if (sheetCount >= tier.minSheets) {
         return tier.price + laminateCharge + cuttingCharge;
       }
     }
-
-    return getBasePrice(material) + laminateCharge + cuttingCharge;
   }
+
+  const base = 10.0; // fallback kalau material tak jumpa
+  return base + laminateCharge + cuttingCharge;
+}
+
 
   function convertToCm(value, unit) {
     if (unit === "mm") return value / 10;
